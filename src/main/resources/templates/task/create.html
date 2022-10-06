@@ -38,12 +38,18 @@
                                             <div class="col">
                                                 <div class="form-group">
                                                     <label>Project</label>
-                                                    <select  th:feild="*{project}" name="project" class="custom-select">
+                                                    <select name="project" class="custom-select" th:field="*{project}">
                                                         <option th:value="''" th:text="Select"></option>
-                                                        <option th:each="project: ${projectList}"
+                                                        <option th:each="project : ${projects}"
                                                                 th:value="${project.projectCode}"
-                                                                th:text="${project.projectName}" ></option>
+                                                                th:text="${project.projectName}"></option>
                                                     </select>
+                                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('project')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('project')}"
+                                                                th:text="${err}"></li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -52,12 +58,19 @@
                                             <div class="col">
                                                 <div class="form-group">
                                                     <label>Assigned Employee</label>
-                                                    <select th:field="*{assignedEmployee}" name="assignedemployee" class="custom-select">
+                                                    <select name="assignedemployee" class="custom-select"
+                                                            th:field="*{assignedEmployee}">
                                                         <option th:value="''" th:text="Select"></option>
-                                                        <option th:each="employee: ${employeeList}"
+                                                        <option th:each="employee : ${employees}"
                                                                 th:value="${employee.userName}"
-                                                                th:text="${employee.firstName+ ' '+ employee.lastName}"></option>
+                                                                th:text="${employee.firstName + ' ' + employee.lastName}"></option>
                                                     </select>
+                                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('assignedEmployee')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('assignedEmployee')}"
+                                                                th:text="${err}"></li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -66,8 +79,14 @@
                                             <div class="col">
                                                 <div class="form-group">
                                                     <label for="tasksubject" class="col-form-label">Task Subject</label>
-                                                    <input th:field="*{taskSubject}" id="tasksubject" type="text" class="form-control"
-                                                           placeholder="task subject">
+                                                    <input id="tasksubject" type="text" class="form-control"
+                                                           placeholder="task subject" th:field="*{taskSubject}">
+                                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('taskSubject')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('taskSubject')}"
+                                                                th:text="${err}"></li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -76,8 +95,15 @@
                                             <div class="col">
                                                 <div class="form-group">
                                                     <label for="taskdetail">Task Detail</label>
-                                                    <textarea th:field="*{taskDetail}" id="taskdetail" class="form-control"
-                                                              placeholder="task detail"></textarea>
+                                                    <textarea id="taskdetail" class="form-control"
+                                                              placeholder="task detail"
+                                                              th:field="*{taskDetail}"></textarea>
+                                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('taskDetail')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('taskDetail')}"
+                                                                th:text="${err}"></li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -90,7 +116,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
 
                                     </form>
                                     <!-- ------------------------FORM END----------------------------- -->
@@ -129,15 +154,17 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr th:each="task: ${taskList}">
-                                                <td th:text="${task.project.projectName}"></td>
+                                            <tr th:each="task : ${tasks}">
+                                                <td th:text="${task.project.projectCode + '-' + task.project.projectName}"></td>
                                                 <td th:text="${task.taskSubject}"></td>
-                                                <td th:text="${task.assignedEmployee.firstName+' '+task.assignedEmployee.lastName}"></td>
-                                                <td th:text="${task.assignedDate}"></td>
+                                                <td th:text="${task.assignedEmployee.firstName +' ' + task.assignedEmployee.lastName}"></td>
+                                                <td th:text="${#temporals.format(task.assignedDate,'MM/dd/yyyy')}"></td>
                                                 <td th:text="${task.taskStatus.value}"></td>
-                                                <td class="actions">
-                                                    <a th:href="@{/task/update/{id} (id=${task.id})}" class="btn btn-warning rounded-0">Update</a>
-                                                    <a th:href="@{/task/delete/{id} (id=${task.id})}"  class="btn btn-danger rounded-0">Delete</a>
+                                                <td>
+                                                    <a th:href="@{/task/update/{id}(id=${task.getId()})}"
+                                                       class="btn btn-warning rounded-0">Update</a>
+                                                    <a th:href="@{/task/delete/{id}(id=${task.getId()})}"
+                                                       class="btn btn-danger rounded-0">Delete</a>
                                                 </td>
                                             </tr>
                                             </tbody>

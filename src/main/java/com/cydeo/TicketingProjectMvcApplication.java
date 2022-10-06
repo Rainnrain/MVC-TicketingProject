@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MvcTicketingProjectApplication {
+public class TicketingProjectMvcApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MvcTicketingProjectApplication.class, args);
+        SpringApplication.run(TicketingProjectMvcApplication.class, args);
     }
 
 }

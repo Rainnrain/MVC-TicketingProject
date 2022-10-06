@@ -8,12 +8,11 @@ import com.cydeo.service.ProjectService;
 import com.cydeo.service.TaskService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ProjectServiceImpl extends  AbstractMapService <ProjectDTO, String> implements ProjectService {
+public class ProjectServiceImpl extends AbstractMapService<ProjectDTO,String> implements ProjectService {
 
     private final TaskService taskService;
 
@@ -23,15 +22,17 @@ public class ProjectServiceImpl extends  AbstractMapService <ProjectDTO, String>
 
     @Override
     public ProjectDTO save(ProjectDTO project) {
-        if(project.getProjectStatus()==null)project.setProjectStatus(Status.OPEN);
-        super.save(project.getProjectCode(), project);
-        return project;
+
+        if(project.getProjectStatus()==null)
+            project.setProjectStatus(Status.OPEN);
+
+        return super.save(project.getProjectCode(),project);
+
     }
 
     @Override
     public ProjectDTO findById(String projectCode) {
         return super.findById(projectCode);
-
     }
 
     @Override
@@ -40,17 +41,19 @@ public class ProjectServiceImpl extends  AbstractMapService <ProjectDTO, String>
     }
 
     @Override
-    public void deleteById(String projectCode) {
-         super.deleteById(projectCode);
+    public void update(ProjectDTO object) {
+
+        if(object.getProjectStatus()==null){
+            object.setProjectStatus(findById(object.getProjectCode()).getProjectStatus());
+        }
+
+        super.update(object.getProjectCode(),object);
+
     }
 
     @Override
-    public void update(ProjectDTO object) {
-
-        if(object.getProjectStatus()==null)
-            object.setProjectStatus(findById(object.getProjectCode()).getProjectStatus());
-
-        super.update(object.getProjectCode(), object);
+    public void deleteById(String projectCode) {
+        super.deleteById(projectCode);
     }
 
     @Override
@@ -58,25 +61,30 @@ public class ProjectServiceImpl extends  AbstractMapService <ProjectDTO, String>
         project.setProjectStatus(Status.COMPLETE);
     }
 
-    public List<ProjectDTO> getCountedListOfProjectDTO(UserDTO manager){
-        List<ProjectDTO> projects=
-            findAll().stream()
-           .filter(p->p.getAssignedManager().equals(manager))
-                    .map(project->{
+    @Override
+    public List<ProjectDTO> getCountedListOfProjectDTO(UserDTO manager) {
 
-                        List<TaskDTO> taskList= taskService.findTasksByManager(manager);
+        List<ProjectDTO> projectList =
+                findAll()
+                        .stream()
+                        .filter(project -> project.getAssignedManager().equals(manager))  //John
+                        .map(project ->{
 
-                        int completedTaskCounts=(int) taskList.stream().filter(p->p.getProject().equals(project) && p.getTaskStatus()==Status.COMPLETE).count();
-                        int unfinishedTaskCounts=(int)taskList.stream().filter(p->p.getProject().equals(project) && p.getTaskStatus()!=Status.COMPLETE).count();
-                        project.setCompleteTaskCounts(completedTaskCounts);
-                        project.setUnfinishedTaskCounts(unfinishedTaskCounts);
+                            List<TaskDTO> taskList = taskService.findTasksByManager(manager);
 
-                        return project;
-                    }).collect(Collectors.toList());
+                            int completeTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() == Status.COMPLETE).count();
+                            int unfinishedTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() != Status.COMPLETE).count();
 
+                            project.setCompleteTaskCounts(completeTaskCounts);
+                            project.setUnfinishedTaskCounts(unfinishedTaskCounts);
 
+                            return project;
 
+                        })
+                        .collect(Collectors.toList());
 
-        return projects;
+        return projectList;
+
     }
+
 }

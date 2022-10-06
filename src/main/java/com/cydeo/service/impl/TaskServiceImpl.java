@@ -8,27 +8,26 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class TaskServiceImpl extends AbstractMapService<TaskDTO, Long>  implements TaskService {
+public class TaskServiceImpl extends AbstractMapService<TaskDTO,Long> implements TaskService {
 
     @Override
     public TaskDTO save(TaskDTO task) {
-        if(task.getId()==null){
-         //   task.setId(new Random().nextLong());
-            task.setId(UUID.randomUUID().getMostSignificantBits());
-        }
-        if(task.getAssignedDate()==null){
-            task.setAssignedDate(LocalDate.now());
-        }
-        if(task.getTaskStatus()==null){
-            task.setTaskStatus(Status.OPEN);
-        }
 
-        return super.save(task.getId(), task);
+        if(task.getTaskStatus() == null)
+            task.setTaskStatus(Status.OPEN);
+
+        if(task.getAssignedDate() == null)
+            task.setAssignedDate(LocalDate.now());
+
+        if(task.getId()==null)
+            task.setId(UUID.randomUUID().getMostSignificantBits());
+
+        return super.save(task.getId(),task);
+
     }
 
     @Override
@@ -42,43 +41,45 @@ public class TaskServiceImpl extends AbstractMapService<TaskDTO, Long>  implemen
     }
 
     @Override
-    public void update(TaskDTO object) {
-
-
-        TaskDTO foundTask=findById(object.getId());
-
-        object.setTaskStatus(foundTask.getTaskStatus());
-        object.setAssignedDate(foundTask.getAssignedDate());
-
-        super.update(object.getId(), object);
-    }
-
-    @Override
     public void deleteById(Long id) {
         super.deleteById(id);
     }
 
     @Override
-    public List<TaskDTO> findTasksByManager(UserDTO manager) {
+    public void update(TaskDTO task) {
 
-        return findAll().stream().filter(p->p.getProject().getAssignedManager()
-                .equals(manager)).collect(Collectors.toList());
+        TaskDTO foundTask = findById(task.getId());
+
+        task.setTaskStatus(foundTask.getTaskStatus());
+        task.setAssignedDate(foundTask.getAssignedDate());
+
+        super.update(task.getId(),task);
 
     }
 
     @Override
-    public List<TaskDTO> findAllTasksByStatusIsNot(Status status) {
-        return findAll().stream().filter(p->!p.getTaskStatus().equals(status))
+    public List<TaskDTO> findTasksByManager(UserDTO manager) {
+        return findAll().stream()
+                .filter(task -> task.getProject().getAssignedManager().equals(manager))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<TaskDTO> findAllTasksByStatusIsNot(Status status) {
+        return findAll().stream().filter(task -> !task.getTaskStatus().equals(status))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<TaskDTO> findAllTasksByStatus(Status status) {
-        return findAll().stream().filter(p->p.getTaskStatus().equals(status))
+        return findAll().stream().filter(task -> task.getTaskStatus().equals(status))
                 .collect(Collectors.toList());
     }
 
     @Override
     public void updateStatus(TaskDTO task) {
-        findById(task.getId()).setTaskStatus(task.getTaskStatus());
-        update(task);
+        findById(task.getId()).setTaskStatus(task.getTaskStatus());     // First, status is updated
+        update(task);     // Second, task is updated with the new status information
     }
+
 }

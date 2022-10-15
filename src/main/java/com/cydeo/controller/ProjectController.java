@@ -105,5 +105,12 @@ public class ProjectController {
         return "/manager/project-status";
 
     }
+    @GetMapping("/manager/complete/{id}")
+    public String setProjectToComplete(@PathVariable String id){
+
+        projectService.complete(projectService.findById(id));
+
+        return "redirect:/project/manager/project-status";
+    }
 
 }
